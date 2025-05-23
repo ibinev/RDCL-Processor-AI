@@ -339,17 +339,115 @@ This simplified example shows the key structural elements of an RDLC file:
 
 The AIReader application parses this XML structure to extract field definitions, understand relationships between data elements, and recreate the report layout in a web-based format.
 
+## Problem Addressed
+RDLC files are commonly used in business applications for report generation, but they can be challenging to work with due to:
+- Complex XML structure
+- Difficult field mapping process
+- Limited visualization options
+- Lack of user-friendly interfaces for customization
+
+AIReader solves these problems by providing:
+1. A simple drag-and-drop interface for RDLC file upload
+2. Visual field mapping capabilities
+3. Real-time data preview
+4. Customizable column visibility and headers
+5. Persistent mapping storage
+
+## How It Works
+
+### Core Features
+
+#### 1. RDLC File Processing
+- Accepts RDLC files through a simple file upload interface
+- Parses the XML structure to extract field definitions
+- Identifies data types and relationships
+- Creates a visual representation of the report structure
+
+#### 2. Field Mapping System
+- Provides an intuitive interface for mapping RDLC fields to data fields
+- Supports custom header text for each column
+- Allows toggling column visibility
+- Saves mappings to localStorage for persistence
+- Includes a "Load Default Mapping" feature for quick setup
+
+#### 3. Data Visualization
+- Displays data in a clean, tabular format
+- Supports custom styling and formatting
+- Handles different data types appropriately
+- Provides real-time updates when mappings change
+
+#### 4. User Interface
+- Clean, modern design with intuitive controls
+- Responsive layout that works on various screen sizes
+- Clear feedback messages for user actions
+- Easy navigation between different views
+
+### Technical Implementation
+
+#### Frontend Architecture
+- Built with vanilla JavaScript for maximum compatibility
+- Uses Webpack for module bundling and asset management
+- Implements modern CSS for styling and layout
+- Utilizes localStorage for data persistence
+
+#### Key Components
+1. **File Processor**: Handles RDLC file parsing and validation
+2. **Field Mapper**: Manages the mapping between RDLC and data fields
+3. **Data Renderer**: Displays the mapped data in a grid format
+4. **Storage Manager**: Handles saving and loading of mappings
+
+## AI Tools in Development
+
+### 1. Code Generation and Refactoring
+- Used AI to generate boilerplate code for common patterns
+- Assisted in refactoring complex functions into more maintainable code
+- Helped identify and fix potential bugs and edge cases
+
+### 2. Documentation
+- AI-assisted in creating comprehensive documentation
+- Generated code comments and function descriptions
+- Helped structure the documentation in a clear, readable format
+
+### 3. UI/UX Design
+- AI provided suggestions for user interface improvements
+- Helped optimize the layout for better user experience
+- Assisted in creating consistent styling patterns
+
+### 4. Problem Solving
+- AI helped identify solutions to complex technical challenges
+- Provided alternative approaches to implementation
+- Assisted in debugging and error resolution
+
 ## Browser Support
 - Modern browsers with ES6 support
 - LocalStorage for mapping persistence
 - XML parsing capabilities
 
 ## Future Enhancements
-1. Additional data format support
+1. Additional data format support - PDF
 2. Enhanced styling options
 3. Export functionality
 4. Advanced grouping features
 5. Custom formatting rules
+
+## Getting Started
+
+### Prerequisites
+- Modern web browser
+- Node.js and npm for development
+- Basic understanding of RDLC files
+
+### Installation
+1. Clone the repository
+2. Install dependencies: `npm install`
+3. Start development server: `npm start`
+4. Open browser to `http://localhost:8080`
+
+### Usage
+1. Upload an RDLC file using the file input
+2. Use the field mapping interface to configure columns
+3. Load data to preview the results
+4. Save mappings for future use
 
 ## Dependencies
 - No external dependencies required
@@ -362,4 +460,4 @@ The AIReader application parses this XML structure to extract field definitions,
 3. Submit a pull request
 
 ## License
-Free
+This project is licensed under the MIT License - see the LICENSE file for details.
