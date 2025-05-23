@@ -668,3 +668,64 @@ h1 {
     background-color: #3498db;
     color: white;
 }
+
+.warning-message {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 200px;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  margin: 20px 0;
+}
+
+.warning-content {
+  text-align: center;
+  padding: 20px;
+  background-color: #fff3cd;
+  border: 1px solid #ffeeba;
+  border-radius: 4px;
+  max-width: 400px;
+}
+
+.warning-content h3 {
+  color: #856404;
+  margin-bottom: 10px;
+}
+
+.warning-content p {
+  color: #666;
+  margin-bottom: 20px;
+}
+
+.warning-content .action-btn {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.2s;
+}
+
+.warning-content .action-btn:hover {
+  background-color: #0056b3;
+}
+
+.load-default-mapping-btn {
+  background-color: #6c757d;
+  color: white;
+  padding: 6px 12px;
+  font-size: 0.9em;
+  margin-bottom: 15px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.load-default-mapping-btn:hover {
+  background-color: #5a6268;
+}

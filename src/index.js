@@ -1,5 +1,5 @@
 import './styles.css';
-import { data } from './enum.js';
+import { data, defaultData } from './enum.js';
 import { formatDate, formatTime } from './utils.js';
 
 // Constants and Configuration
@@ -44,7 +44,8 @@ const elements = {
   reportContainer: document.getElementById('report-container'),
   fieldMappingForm: document.getElementById('field-mapping-form'),
   toggleMappingBtn: document.getElementById('toggle-mapping-btn'),
-  fieldMappingSection: document.getElementById('field-mapping-section')
+  fieldMappingSection: document.getElementById('field-mapping-section'),
+  loadDefaultMappingBtn: document.createElement('button')
 };
 
 // Utility Functions
@@ -831,6 +832,7 @@ const handlers = {
       utils.updateStatus(elements.rdlcStatus, '', '');
       elements.toggleMappingBtn.style.display = 'none';
       elements.fieldMappingSection.style.display = 'none';
+      elements.loadDefaultMappingBtn.style.display = 'none';
       CURRENT_FILE_NAME = '';
       elements.loadDataBtn.disabled = true;
       return;
@@ -852,9 +854,6 @@ const handlers = {
       rdlcDoc = new DOMParser().parseFromString(contents, "application/xml");
       rdlcTemplate = rdlcProcessor.processRdlcTemplate(rdlcDoc);
 
-      // Load saved mappings for this file
-      loadSavedMappings(CURRENT_FILE_NAME);
-
       // Create table structure immediately
       const { thead, tbody, tfoot } = tableManager.createTableStructure();
       
@@ -863,28 +862,49 @@ const handlers = {
         return;
       }
 
-      // Get the saved mappings for the current file
+      // Check for saved mappings first
       const savedMappings = localStorage.getItem(`rdlcFieldMappings_${CURRENT_FILE_NAME}`);
       let visibleHeaders = [];
+
+      // Always hide the Load Default Mapping button initially
+      elements.loadDefaultMappingBtn.style.display = 'none';
+
       if (savedMappings) {
         FIELD_MAPPINGS = JSON.parse(savedMappings);
         console.log('Loaded saved mappings:', FIELD_MAPPINGS);
-        // Only include headers that are present in saved mappings and visible
         visibleHeaders = rdlcTemplate.headers.filter(header => {
           const mapping = FIELD_MAPPINGS[header.name];
           return mapping && mapping.visible === true;
         });
       } else {
-        // If no saved mappings, show all headers by default
-        visibleHeaders = rdlcTemplate.headers;
+        // Only show the button if there are no saved mappings
+        elements.loadDefaultMappingBtn.style.display = 'block';
       }
 
-      // Create all header rows
-      const headerRows = tableManager.createHeaderRow(visibleHeaders);
-      headerRows.forEach(row => thead.appendChild(row));
+      if (visibleHeaders.length === 0) {
+        // Show warning message when no mappings are available
+        const warningDiv = document.createElement('div');
+        warningDiv.className = 'warning-message';
+        warningDiv.innerHTML = `
+          <div class="warning-content">
+            <h3>No Field Mappings Found</h3>
+            <p>Please create field mappings to display the data.</p>
+          </div>
+        `;
+        elements.reportContainer.appendChild(warningDiv);
 
-      tbody.innerHTML = ''; // Empty tbody for now
-      tfoot.innerHTML = ''; // Empty tfoot for now
+        // Show the toggle button but keep the field mapping section hidden
+        elements.toggleMappingBtn.style.display = 'block';
+        elements.toggleMappingBtn.textContent = 'Show Field Mapping';
+        elements.fieldMappingSection.style.display = 'none';
+      } else {
+        // Create all header rows
+        const headerRows = tableManager.createHeaderRow(visibleHeaders);
+        headerRows.forEach(row => thead.appendChild(row));
+
+        tbody.innerHTML = ''; // Empty tbody for now
+        tfoot.innerHTML = ''; // Empty tfoot for now
+      }
 
       elements.rdlcStatus.className = 'status-message success-message';
       elements.rdlcStatus.textContent = 'RDLC file processed successfully. Click "Load Data" to display the data.';
@@ -1072,6 +1092,79 @@ const handlers = {
       console.error('Error applying RDLC template:', error);
       utils.updateStatus(elements.rdlcStatus, 'Error applying template. Please check the console for details.', 'error-message');
     }
+  },
+
+  loadDefaultMapping: () => {
+    if (!rdlcTemplate) {
+      alert('Please load an RDLC file first.');
+      return;
+    }
+
+    try {
+      // Set the default mappings
+      FIELD_MAPPINGS = { ...defaultData };
+
+      // Save the mappings
+      saveMappings();
+
+      // Remove warning div if it exists
+      const warningDiv = document.querySelector('.warning-message');
+      if (warningDiv) {
+        warningDiv.remove();
+      }
+
+      // Hide the Load Default Mapping button since we now have mappings
+      elements.loadDefaultMappingBtn.style.display = 'none';
+
+      // Update the form with default values
+      const form = document.getElementById('field-mapping-form');
+      if (form) {
+        // Get all field mapping rows
+        const rows = form.querySelectorAll('.field-mapping-row');
+        
+        rows.forEach(row => {
+          // Get the field name from the label
+          const label = row.querySelector('label');
+          const fieldName = label.getAttribute('title')?.replace('RDLC Field: ', '') || '';
+          
+          if (fieldName && FIELD_MAPPINGS[fieldName]) {
+            const mapping = FIELD_MAPPINGS[fieldName];
+            
+            // Update visibility checkbox
+            const checkbox = row.querySelector('input[type="checkbox"]');
+            if (checkbox) {
+              checkbox.checked = mapping.visible === true;
+            }
+            
+            // Update header input
+            const headerInput = row.querySelector('input[name$="_header"]');
+            if (headerInput) {
+              headerInput.value = mapping.header || '';
+            }
+            
+            // Update RDLC field select
+            const rdlcFieldSelect = row.querySelector('select[name$="_rdlc_field"]');
+            if (rdlcFieldSelect) {
+              rdlcFieldSelect.value = mapping.rdlcField || '';
+              
+              // Update the data field input
+              const dataFieldInput = row.querySelector('input[type="hidden"]');
+              if (dataFieldInput) {
+                dataFieldInput.value = mapping.field || '';
+              }
+            }
+          }
+        });
+      }
+
+      // Apply the template with new mappings
+      handlers.applyTemplateButtonHandler();
+
+      utils.updateStatus(elements.rdlcStatus, 'Default mappings loaded successfully.', 'success-message');
+    } catch (error) {
+      console.error('Error loading default mappings:', error);
+      utils.updateStatus(elements.rdlcStatus, 'Error loading default mappings. Please check the console for details.', 'error-message');
+    }
   }
 };
 
@@ -1093,10 +1186,30 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
+  // Configure and add the Load Default Mapping button
+  elements.loadDefaultMappingBtn.textContent = 'Load Default Mapping';
+  elements.loadDefaultMappingBtn.className = 'load-default-mapping-btn';
+  elements.loadDefaultMappingBtn.style.display = 'none'; // Initially hidden
+  elements.loadDefaultMappingBtn.addEventListener('click', handlers.loadDefaultMapping);
+  
+  // Insert the button at the top of the field mapping section
+  elements.fieldMappingSection.insertBefore(
+    elements.loadDefaultMappingBtn,
+    elements.fieldMappingSection.firstChild
+  );
+
   // Add event listener for toggle mapping button
   elements.toggleMappingBtn.addEventListener('click', () => {
     const isVisible = elements.fieldMappingSection.style.display === 'block';
     elements.fieldMappingSection.style.display = isVisible ? 'none' : 'block';
     elements.toggleMappingBtn.textContent = isVisible ? 'Show Field Mapping' : 'Hide Field Mapping';
+    
+    // Only show the Load Default Mapping button if there are no saved mappings
+    if (!isVisible) {
+      const savedMappings = localStorage.getItem(`rdlcFieldMappings_${CURRENT_FILE_NAME}`);
+      elements.loadDefaultMappingBtn.style.display = savedMappings ? 'none' : 'block';
+    } else {
+      elements.loadDefaultMappingBtn.style.display = 'none';
+    }
   });
 });

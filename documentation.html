@@ -11,44 +11,100 @@
             color: #333;
             max-width: 1200px;
             margin: 0 auto;
-            padding: 20px;
+            padding: 40px;
+            background-color: #f7f9fc;
+        }
+
+        #documentation-content {
+            background-color: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
         }
 
         h1 {
             color: #2c3e50;
             border-bottom: 2px solid #eee;
-            padding-bottom: 10px;
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+            font-size: 2.2em;
         }
 
         h2 {
             color: #34495e;
-            margin-top: 30px;
-        }
-
-        h3 {
+            margin-top: 40px;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+            font-size: 1.8em;
+        }        h3 {
             color: #2c3e50;
+            margin-top: 30px;
+            font-size: 1.4em;
+            position: relative;
+            padding-left: 16px;
+        }
+        
+        h3::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 6px;
+            background-color: #3498db;
+            border-radius: 3px;
         }
 
         code {
-            background-color: #f8f9fa;
-            padding: 2px 4px;
+            background-color: #f0f2f5;
+            padding: 3px 6px;
             border-radius: 4px;
             font-family: 'Courier New', Courier, monospace;
+            font-size: 0.9em;
+            color: #e74c3c;
         }
 
         pre {
             background-color: #f8f9fa;
-            padding: 15px;
-            border-radius: 4px;
+            padding: 20px;
+            border-radius: 6px;
             overflow-x: auto;
-        }
-
-        ul, ol {
-            padding-left: 20px;
+            border: 1px solid #eaecef;
+            margin: 20px 0;
+        }        ul, ol {
+            padding-left: 25px;
         }
 
         li {
-            margin: 5px 0;
+            margin: 8px 0;
+        }
+        
+        /* Improved lists */
+        ul li {
+            position: relative;
+            list-style-type: none;
+            padding-left: 20px;
+        }
+        
+        ul li::before {
+            content: "•";
+            position: absolute;
+            left: 0;
+            color: #3498db;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+        
+        ol li {
+            padding-left: 5px;
+        }
+        
+        /* Section divider */
+        .section-divider {
+            height: 1px;
+            background: linear-gradient(to right, transparent, #e0e0e0, transparent);
+            margin: 40px 0;
         }
 
         .nav {
@@ -68,24 +124,34 @@
 
         .nav a:hover {
             text-decoration: underline;
-        }
-
-        .back-to-app {
+        }        .back-to-app {
             display: inline-block;
-            padding: 10px 20px;
+            padding: 12px 25px;
             background-color: #3498db;
             color: white;
             text-decoration: none;
-            border-radius: 4px;
-            margin-bottom: 20px;
+            border-radius: 6px;
+            margin-bottom: 30px;
+            font-weight: 500;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+            transition: all 0.2s ease;
         }
 
         .back-to-app:hover {
             background-color: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 10px rgba(0,0,0,0.15);
         }
 
         .section {
-            margin-bottom: 40px;
+            margin-bottom: 50px;
+            padding-bottom: 20px;
+            border-bottom: 1px dashed #e0e0e0;
+        }
+        
+        /* Last section shouldn't have a border */
+        .section:last-child {
+            border-bottom: none;
         }
 
         .code-block {
@@ -107,91 +173,72 @@
             padding: 15px;
             border-radius: 4px;
             border-left: 4px solid #3498db;
+        }        pre code {
+            display: block;
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.9em;
+            color: #333;
+            line-height: 1.5;
         }
 
-        .error-message {
-            color: #dc3545;
-            padding: 20px;
-            background-color: #f8d7da;
-            border: 1px solid #f5c6cb;
-            border-radius: 4px;
+        blockquote {
+            border-left: 4px solid #3498db;
+            padding: 15px 20px;
             margin: 20px 0;
+            background-color: #f0f7ff;
+            border-radius: 0 4px 4px 0;
+            color: #555;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        
+        blockquote p:last-child {
+            margin-bottom: 0;
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 25px 0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        table, th, td {
+            border: 1px solid #e0e0e0;
+        }
+
+        th, td {
+            padding: 14px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f7fb;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+        
+        tr:hover {
+            background-color: #f0f7ff;
         }
     </style>
-</head>
-<body>
-    <div class="nav">
-        <a href="index.html">Back to Application</a>
-    </div>
-
-    <a href="index.html" class="back-to-app">← Back to Application</a>
-
-    <div id="documentation-content">
-        <!-- Documentation content will be loaded here -->
-    </div>
-
-    <script>
-        // Function to convert markdown to HTML
-        function markdownToHtml(markdown) {
-            if (!markdown) {
-                throw new Error('No markdown content provided');
-            }
-
-            // Basic markdown conversion
-            let html = markdown
-                // Headers
-                .replace(/^# (.*$)/gm, '<h1>$1</h1>')
-                .replace(/^## (.*$)/gm, '<h2>$1</h2>')
-                .replace(/^### (.*$)/gm, '<h3>$1</h3>')
-                // Lists
-                .replace(/^\s*\*\s(.*$)/gm, '<li>$1</li>')
-                .replace(/^\s*-\s(.*$)/gm, '<li>$1</li>')
-                .replace(/^\s*\d+\.\s(.*$)/gm, '<li>$1</li>')
-                // Code blocks
-                .replace(/```javascript\n([\s\S]*?)```/g, '<pre><code class="language-javascript">$1</code></pre>')
-                // Inline code
-                .replace(/`([^`]+)`/g, '<code>$1</code>')
-                // Bold
-                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-                // Italic
-                .replace(/\*(.*?)\*/g, '<em>$1</em>')
-                // Links
-                .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>');
-
-            // Wrap lists in ul/ol tags
-            html = html.replace(/<li>.*?<\/li>/gs, function(match) {
-                return '<ul>' + match + '</ul>';
-            });
-
-            return html;
-        }
-
-        // Load and display the documentation
-        fetch('documentation.md')
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                return response.text();
-            })
-            .then(markdown => {
-                try {
-                    const html = markdownToHtml(markdown);
-                    document.getElementById('documentation-content').innerHTML = html;
-                } catch (error) {
-                    throw new Error(`Error converting markdown: ${error.message}`);
-                }
-            })
-            .catch(error => {
-                console.error('Error loading documentation:', error);
-                document.getElementById('documentation-content').innerHTML = `
-                    <div class="error-message">
-                        <h2>Error Loading Documentation</h2>
-                        <p>${error.message}</p>
-                        <p>Please try refreshing the page or contact support if the problem persists.</p>
-                    </div>
-                `;
-            });
-    </script>
+    </head>
+    
+    <body>
+        <a href="index.html" class="back-to-app">← Back to Application</a>
+    
+        <div id="documentation-content">
+            <!-- Documentation content will be loaded here -->
+        </div>
 </body>
 </html> 

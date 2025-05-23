@@ -6,7 +6,8 @@ module.exports = {
   mode: 'development',
   entry: {
     main: './src/index.js',
-    pdf: './src/pdf.js'
+    pdf: './src/pdf.js',
+    documentation: './src/documentation.js'
   },
   output: {
     filename: '[name].bundle.js',
@@ -47,8 +48,7 @@ module.exports = {
       {
         test: /\.xml$/,
         type: 'asset/source',
-      },
-      {
+      }, {
         test: /\.md$/,
         type: 'asset/source',
       },
@@ -71,7 +71,7 @@ module.exports = {
       title: 'Documentation',
       template: 'documentation.html',
       filename: 'documentation.html',
-      chunks: []
+      chunks: ['documentation']
     }),
     new CopyWebpackPlugin({
       patterns: [

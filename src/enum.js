@@ -192,3 +192,87 @@ export const data = [
         "sortCodePath": "2FM01"
     }
 ]
+
+export const defaultData = {
+    "tdate": {
+        "visible": true,
+        "header": "Date",
+        "rdlcField": ""
+    },
+    "traw": {
+        "visible": true,
+        "header": "Raw",
+        "rdlcField": ""
+    },
+    "trealized": {
+        "visible": true,
+        "header": "Realized",
+        "rdlcField": ""
+    },
+    "textbox2": {
+        "visible": true,
+        "header": "",
+        "rdlcField": "entry_date",
+        "field": "entryDate"
+    },
+    "tdepartment_clock": {
+        "visible": true,
+        "header": "Department",
+        "rdlcField": "clock_dept_name",
+        "field": "clockDeptName"
+    },
+    "t_in": {
+        "visible": true,
+        "header": "In",
+        "rdlcField": "time_in",
+        "field": "timeIn"
+    },
+    "t_out": {
+        "visible": true,
+        "header": "Out",
+        "rdlcField": "time_out",
+        "field": "timeOut"
+    },
+    "tclock_hour_code": {
+        "visible": true,
+        "header": "Code",
+        "rdlcField": "clock_hour_code_abbr",
+        "field": "clockHourCodeAbbr"
+    },
+    "tdepartment_real": {
+        "visible": true,
+        "header": "Department",
+        "rdlcField": "realized_dept_name",
+        "field": "realizedDeptName"
+    },
+    "tfrom": {
+        "visible": true,
+        "header": "From",
+        "rdlcField": "from_time",
+        "field": "fromTime"
+    },
+    "tto": {
+        "visible": true,
+        "header": "To",
+        "rdlcField": "to_time",
+        "field": "toTime"
+    },
+    "tTotalCol": {
+        "visible": true,
+        "header": "Total",
+        "rdlcField": "total_time",
+        "field": "totalTime"
+    },
+    "trealized_hour_code": {
+        "visible": true,
+        "header": "Code",
+        "rdlcField": "realized_hour_code_abbr",
+        "field": "realizedHourCodeAbbr"
+    },
+    "tOriginal": {
+        "visible": true,
+        "header": "Orig.",
+        "rdlcField": "original_entry",
+        "field": "originalEntry"
+    }
+}
