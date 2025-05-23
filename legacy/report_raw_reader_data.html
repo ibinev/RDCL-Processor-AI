@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Raw Reader Data Report</title>
+  <link rel="stylesheet" href="report_raw_reader_data.css">
+  <style>
+    .file-upload-container {
+      margin: 20px 0;
+      padding: 15px;
+      border: 1px dashed #ccc;
+      border-radius: 5px;
+      background-color: #f9f9f9;
+    }
+    .file-upload-container label {
+      display: block;
+      margin-bottom: 10px;
+      font-weight: bold;
+    }
+    .file-info {
+      margin-top: 10px;
+      font-size: 0.9em;
+      color: #555;
+    }
+    .file-upload-btn {
+      background-color: #4CAF50;
+      color: white;
+      padding: 8px 16px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    .file-upload-btn:hover {
+      background-color: #45a049;
+    }
+    .loading {
+      display: inline-block;
+      margin-left: 10px;
+      color: #666;
+      font-style: italic;
+    }
+    .error-message {
+      color: #d9534f;
+      font-weight: bold;
+      margin-top: 10px;
+    }
+    .success-message {
+      color: #5cb85c;
+      font-weight: bold;
+      margin-top: 10px;
+    }
+    .report-options {
+      margin-top: 15px;
+    }
+  </style>
+</head>
+<body>
+  <div class="report-header">
+    <div class="report-title">Raw Reader Data Report</div>
+    <div class="report-meta">
+      <div class="meta-left">
+        <div>Company: Example Company</div>
+        <div>User: John Doe</div>
+      </div>
+      <div class="meta-right">
+        <div>Date: 2024-06-01</div>
+        <div>Condition: All Employees</div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- File Upload Section for RDLC files -->
+  <div class="file-upload-container">
+    <label for="rdlc-file">Attach RDLC Report Definition:</label>
+    <input type="file" id="rdlc-file" accept=".rdlc" style="display:none">
+    <button class="file-upload-btn" id="upload-btn">Browse RDLC Files</button>
+    <div class="file-info" id="file-info">No file selected</div>
+    <div id="rdlc-status"></div>
+    <div class="report-options" id="report-options" style="display:none;">
+      <button id="apply-template-btn" class="file-upload-btn">Apply RDLC Template</button>
+    </div>
+  </div>
+
+  <div id="report-container">
+    <table class="report-table" id="report-table">
+      <thead></thead>
+      <tbody id="table-body"></tbody>
+      <tfoot id="table-footer"></tfoot>
+    </table>
+  </div>
+
+  <script>
+    // Example data
+    const data = [
+      {
+        entry_date: "2024-06-01",
+        clock_dept_name: "Sales",
+        time_in: "08:00",
+        time_out: "17:00",
+        clock_hour_code_abbr: "REG",
+        realized_dept_name: "Sales",
+        from_time: "08:00",
+        to_time: "17:00",
+        total_time: 9.00,
+        realized_hour_code_abbr: "REG",
+        original_entry: "Normal"
+      },
+      {
+        entry_date: "2024-06-02",
+        clock_dept_name: "Support",
+        time_in: "09:00",
+        time_out: "18:00",
+        clock_hour_code_abbr: "SUP",
+        realized_dept_name: "Support",
+        from_time: "09:00",
+        to_time: "18:00",
+        total_time: 9.00,
+        realized_hour_code_abbr: "SUP",
+        original_entry: "Normal"
+      }
+    ];
+
+    // Store RDLC template information
+    let rdlcTemplate = null;
+
+    // RDLC file upload handling
+    document.getElementById('upload-btn').addEventListener('click', function() {
+      document.getElementById('rdlc-file').click();
+    });
+
+    document.getElementById('rdlc-file').addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (file) {
+        // Display file information
+        document.getElementById('file-info').textContent = `Selected: ${file.name} (${(file.size / 1024).toFixed(2)} KB)`;
+        
+        // Show loading status
+        const statusElement = document.getElementById('rdlc-status');
+        statusElement.className = 'loading';
+        statusElement.textContent = 'Processing RDLC file...';
+        
+        // Read the RDLC file content
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          try {
+            const contents = e.target.result;
+            // Parse the RDLC XML content
+            const parser = new DOMParser();
+            const rdlcDoc = parser.parseFromString(contents, "application/xml");
+            
+            // Extract relevant information from the RDLC
+            rdlcTemplate = processRdlcTemplate(rdlcDoc);
+            
+            statusElement.className = 'success-message';
+            statusElement.textContent = 'RDLC file processed successfully. Ready to apply template.';
+            
+            // Show apply template button
+            document.getElementById('report-options').style.display = 'block';
+          } catch (error) {
+            console.error('Error processing RDLC file:', error);
+            statusElement.className = 'error-message';
+            statusElement.textContent = 'Error processing RDLC file. Please check the console for details.';
+          }
+        };
+        
+        reader.onerror = function() {
+          statusElement.className = 'error-message';
+          statusElement.textContent = 'Error reading file.';
+        };
+        
+        reader.readAsText(file);
+      } else {
+        document.getElementById('file-info').textContent = 'No file selected';
+        document.getElementById('rdlc-status').textContent = '';
+        document.getElementById('report-options').style.display = 'none';
+      }
+    });
+
+    // Process RDLC template and extract structure
+      function processRdlcTemplate(rdlcDoc) {
+        // Extract table structure from RDLC - using Table instead of Tablix
+        const tables = rdlcDoc.querySelectorAll('Table');
+        if (!tables || tables.length === 0) {
+          throw new Error('No Table element found in RDLC file');
+        }
+
+        const table = tables[0]; // Use the first table
+
+        // Get column definitions
+        const columns = [];
+        const tableColumns = table.querySelectorAll('TableColumn');
+        tableColumns.forEach(col => {
+          const width = col.querySelector('Width')?.textContent;
+          columns.push({ width });
+        });
+
+        // Get column headers from the Header section
+        const headers = [];
+        const tableHeader = table.querySelector('Header');
+        if (tableHeader) {
+          // Look for the second TableRow which contains the actual column headers
+          const headerRows = tableHeader.querySelectorAll('TableRow');
+          if (headerRows.length >= 2) {
+            const headerRow = headerRows[1]; // Second row has the actual headers
+            const cells = headerRow.querySelectorAll('TableCell');
+            cells.forEach(cell => {
+              // Find textbox elements in the cells
+              const textbox = cell.querySelector('ReportItems Textbox');
+              if (textbox) {
+                // Get the name attribute from the textbox
+                const name = textbox.getAttribute('Name');
+
+                // Get the actual value/text content from the textbox if available
+                // This will be the displayed label in the RDLC report
+                let label = '';
+                const valueElement = textbox.querySelector('Value');
+                if (valueElement) {
+                  // Extract the actual text content, removing any expression syntax
+                  const valueText = valueElement.textContent;
+                  // Handle expressions like =Fields!SomeField.Value or static text
+                  if (valueText.startsWith('=Fields!') && valueText.endsWith('.Value')) {
+                    // Extract field name from =Fields!FieldName.Value format
+                    const fieldMatch = valueText.match(/=Fields!([^.]+)\.Value/);
+                    if (fieldMatch && fieldMatch[1]) {
+                      label = fieldMatch[1];
+                    } else {
+                      label = valueText;
+                    }
+                  } else if (valueText.startsWith('="') && valueText.endsWith('"')) {
+                    // Handle string literals like ="Column Name"
+                    label = valueText.substring(2, valueText.length - 1);
+                  } else {
+                    // Use value as is if not matching known patterns
+                    label = valueText;
+                  }
+                }
+
+                // If no value element or empty label, use the name as fallback
+                if (!label) {
+                  label = name;
+                }
+
+                // Try to extract field name from the textbox (removing prefix like 't' or 'textbox')
+                let fieldName = name.replace(/^(t|textbox)/, '').toLowerCase();
+
+                // Map common RDLC field names to data fields dynamically
+                // This uses a more flexible approach to field mapping
+                const fieldMapping = {
+                  'date': 'entry_date',
+                  'department_clock': 'clock_dept_name',
+                  'in': 'time_in',
+                  'out': 'time_out',
+                  'clock_hour_code': 'clock_hour_code_abbr',
+                  'department_real': 'realized_dept_name',
+                  'from': 'from_time',
+                  'to': 'to_time',
+                  'totalcol': 'total_time',
+                  'realized_hour_code': 'realized_hour_code_abbr',
+                  'original': 'original_entry'
+                };
+
+                // Try to match the field name to one of our data fields
+                Object.keys(fieldMapping).forEach(key => {
+                  if (fieldName.includes(key.toLowerCase())) {
+                    fieldName = fieldMapping[key];
+                  }
+                });
+
+                headers.push({
+                  name,
+                  label,
+                  field: fieldName
+                });
+              }
+            });
+          }
+        }
+
+        // Get any aggregations or special format instructions
+        const aggregations = extractAggregations(rdlcDoc);
+
+        // Determine report parameters
+        const params = {};
+        const reportParams = rdlcDoc.querySelectorAll('ReportParameter');
+        reportParams.forEach(param => {
+          const name = param.getAttribute('Name');
+          params[name] = true;
+        });
+
+        return {
+          columns,
+          headers,
+          aggregations,
+          params
+        };
+      }
+    
+    // Extract aggregation definitions from the RDLC
+      function extractAggregations(rdlcDoc) {
+        const aggregations = {};
+        // Look for aggregation expressions like Sum(), Avg() in textbox values
+        const textboxes = rdlcDoc.querySelectorAll('Textbox');
+
+        textboxes.forEach(textbox => {
+          const value = textbox.querySelector('Value')?.textContent || '';
+          if (value.includes('SUM(') || value.includes('Sum(') ||
+            value.includes('AVG(') || value.includes('Avg(') ||
+            value.includes('COUNT(') || value.includes('Count(')) {
+
+            const name = textbox.getAttribute('Name');
+            let aggregationType = 'sum';
+            if (value.toLowerCase().includes('avg(')) aggregationType = 'avg';
+            else if (value.toLowerCase().includes('count(')) aggregationType = 'count';
+
+            // Try to find the field being aggregated
+            const fieldMatch = value.match(/Fields!([^.]+)\.Value/);
+            const field = fieldMatch ? fieldMatch[1] : null;
+
+            if (field) {
+              aggregations[field] = { type: aggregationType, name };
+            }
+          }
+        });
+
+        return aggregations;
+      }
+
+     function applyRdlcTemplate() {
+        const table = document.getElementById('report-table');
+        const thead = table.querySelector('thead');
+        const tbody = document.getElementById('table-body');
+        const tfoot = document.getElementById('table-footer');
+
+        // Clear existing content
+        thead.innerHTML = '';
+        tbody.innerHTML = '';
+        tfoot.innerHTML = '';
+
+        // Use the headers extracted from the RDLC
+        const headerDefinitions = rdlcTemplate.headers || [];
+
+        console.log('Using header definitions:', headerDefinitions);
+
+        if (headerDefinitions.length === 0) {
+          document.getElementById('rdlc-status').className = 'error-message';
+          document.getElementById('rdlc-status').textContent = 'No valid column definitions found in RDLC.';
+          return;
+        }
+
+        // Create header row
+        const headerRow = document.createElement('tr');
+        headerDefinitions.forEach(header => {
+          const th = document.createElement('th');
+          th.textContent = header.label;
+          if (header.field) {
+            th.setAttribute('data-field', header.field);
+          }
+          headerRow.appendChild(th);
+        });
+        thead.appendChild(headerRow);
+
+        // Generate rows based on the header definitions
+        let rowsHTML = '';
+        data.forEach(item => {
+          rowsHTML += '<tr>';
+
+          headerDefinitions.forEach(header => {
+            if (header.field && item[header.field] !== undefined) {
+              let value = item[header.field];
+
+              // Format values based on field type
+              if (typeof value === 'number') {
+                if (header.field === 'total_time') {
+                  rowsHTML += `<td>${value.toFixed(2)}</td>`;
+                } else {
+                  rowsHTML += `<td>${value}</td>`;
+                }
+              } else {
+                rowsHTML += `<td>${value}</td>`;
+              }
+            } else {
+              rowsHTML += '<td></td>';
+            }
+          });
+
+          rowsHTML += '</tr>';
+        });
+
+        tbody.innerHTML = rowsHTML;
+
+        // Calculate total for numeric fields (typically total_time)
+        const totalField = headerDefinitions.find(h => h.field === 'total_time')?.field;
+
+        if (totalField) {
+          const total = data.reduce((sum, item) => sum + (parseFloat(item[totalField]) || 0), 0);
+
+          // Find position of the total field
+          const totalFieldIndex = headerDefinitions.findIndex(h => h.field === totalField);
+
+          // Create footer row
+          let footerHTML = '<tr>';
+          headerDefinitions.forEach((header, index) => {
+            if (index === totalFieldIndex) {
+              footerHTML += `<td class="total-value">${total.toFixed(2)}</td>`;
+            } else if (index === totalFieldIndex - 1) {
+              footerHTML += '<td class="total-label">Total:</td>';
+            } else {
+              footerHTML += '<td></td>';
+            }
+          });
+          footerHTML += '</tr>';
+
+          tfoot.innerHTML = footerHTML;
+        }
+
+        // Apply column widths if available
+        if (rdlcTemplate.columns && rdlcTemplate.columns.length > 0) {
+          const tableHeaders = headerRow.querySelectorAll('th');
+          rdlcTemplate.columns.forEach((col, index) => {
+            if (index < tableHeaders.length && col.width) {
+              // Convert RDLC width format to CSS
+              const widthValue = col.width.replace(/in$/, '').replace(/cm$/, '');
+              let widthInPixels;
+              if (col.width.includes('in')) {
+                widthInPixels = parseFloat(widthValue) * 96; // inches to pixels
+              } else if (col.width.includes('cm')) {
+                widthInPixels = parseFloat(widthValue) * 37.8; // cm to pixels
+              } else {
+                widthInPixels = parseFloat(widthValue);
+              }
+              tableHeaders[index].style.width = `${widthInPixels}px`;
+            }
+          });
+        }
+
+        // Update status
+        document.getElementById('rdlc-status').className = 'success-message';
+        document.getElementById('rdlc-status').textContent = 'RDLC template applied successfully.';
+      }
+
+      // Add event listener for the apply template button
+      document.getElementById('apply-template-btn').addEventListener('click', function() {
+        if (!rdlcTemplate) {
+          alert('No valid RDLC template loaded.');
+          return;
+        }
+        
+        try {
+          applyRdlcTemplate();
+        } catch (error) {
+          console.error('Error applying RDLC template:', error);
+          document.getElementById('rdlc-status').className = 'error-message';
+          document.getElementById('rdlc-status').textContent = 'Error applying template. Please check the console for details.';
+        }
+      });
+  </script>
+</body>
+</html>

@@ -1,0 +1,88 @@
+.report-table {
+  border-collapse: collapse;
+  width: 100%;
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
+  font-size: 7.5pt;
+}
+
+.report-table th, .report-table td {
+  border: 1.5pt solid #333;
+  padding: 2pt;
+}
+
+.report-table th {
+  background-color: #9ab9f3;
+  font-weight: 700;
+  text-align: right;
+}
+
+.report-table th:nth-child(2),
+.report-table th:nth-child(6),
+.report-table th:nth-child(11) {
+  text-align: left;
+}
+
+.report-table td {
+  text-align: right;
+}
+
+.report-table td:nth-child(2),
+.report-table td:nth-child(6),
+.report-table td:nth-child(11) {
+  text-align: left;
+}
+
+.report-table thead tr:nth-child(2) th {
+  background-color: #cce5ff;
+}
+
+.report-table tfoot td {
+  font-weight: 700;
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
+  font-size: 7.5pt;
+  border: 1.5pt solid #333;
+  padding: 2pt;
+  text-align: right;
+  background-color: #e6f0ff;
+}
+
+.report-table tfoot .total-label {
+  text-align: right;
+}
+
+.report-table tfoot .total-value {
+  text-align: right;
+}
+
+.report-header {
+  margin-bottom: 16px;
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
+  font-size: 7.5pt;
+}
+
+.report-title {
+  font-size: 12pt;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 8px;
+}
+
+.report-meta {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+
+.meta-left, .meta-right {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.meta-left {
+  text-align: left;
+}
+
+.meta-right {
+  text-align: right;
+} 
